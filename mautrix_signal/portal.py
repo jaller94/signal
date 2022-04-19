@@ -67,6 +67,8 @@ from mautrix.types import (
     MessageEventContent,
     MessageType,
     PowerLevelStateEventContent,
+    RelatesTo,
+    RelationType,
     RoomID,
     TextMessageEventContent,
     UserID,
@@ -112,6 +114,8 @@ ChatInfo = Union[Group, GroupV2, GroupV2ID, Contact, Profile, Address]
 MAX_MATRIX_MESSAGE_SIZE = 60000
 BEEPER_LINK_PREVIEWS_KEY = "com.beeper.linkpreviews"
 BEEPER_IMAGE_ENCRYPTION_KEY = "beeper:image:encryption"
+
+MessageSendStatus = EventType.find("com.beeper.message_send_status", EventType.Class.MESSAGE)
 
 
 class UnknownReactionTarget(Exception):
@@ -218,11 +222,22 @@ class Portal(DBPortal, BasePortal):
     # region Misc
 
     async def _send_delivery_receipt(self, event_id: EventID) -> None:
-        if event_id and self.config["bridge.delivery_receipts"]:
-            try:
-                await self.az.intent.mark_read(self.mxid, event_id)
-            except Exception:
-                self.log.exception("Failed to send delivery receipt for %s", event_id)
+        if event_id:
+            if self.config["bridge.delivery_receipts"]:
+                try:
+                    await self.az.intent.mark_read(self.mxid, event_id)
+                except Exception:
+                    self.log.exception("Failed to send delivery receipt for %s", event_id)
+            if self.config["bridge.send_message_send_status_events"]:
+                try:
+                    content = {
+                        "network": self.bridge_info_state_key,
+                        "m.relates_to": RelatesTo(RelationType.REFERENCE, event_id).serialize(),
+                        "success": True,
+                    }
+                    await self.az.intent.send_message_event(self.mxid, MessageSendStatus, content)
+                except Exception:
+                    self.log.exception("Failed to send message send status event for %s", event_id)
 
     async def _upsert_reaction(
         self,

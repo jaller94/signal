@@ -186,8 +186,20 @@ bridge:
     # messages.
     # Note that this is not related to Signal delivery receipts.
     delivery_receipts: false
-    # Whether or not delivery errors should be reported as messages in the Matrix room. (not yet implemented)
-    delivery_error_reports: false
+    # Whether or not the bridge should send the message status as a custom
+    # com.beeper.message_send_status event.
+    send_message_send_status_events: false
+    # Whether or not the bridge should send error notices via m.notice events
+    # when a message fails to bridge.
+    send_error_notices: true
+
+    # The maximum number of seconds between the message arriving at the
+    # homeserver and the bridge attempting to send the message. This can help
+    # prevent messages from being bridged a long time after arriving at the
+    # homeserver which could cause confusion in the chat history on the remote
+    # network. Set to 0 to disable.
+    max_handle_seconds: 10
+
     # Set this to true to tell the bridge to re-send m.bridge events to all rooms on the next run.
     # This field will automatically be changed back to false after it,
     # except if the config file is not writable.

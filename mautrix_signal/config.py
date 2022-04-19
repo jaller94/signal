@@ -85,7 +85,9 @@ class Config(BaseBridgeConfig):
         copy("bridge.encryption.key_sharing.require_verification")
         copy("bridge.private_chat_portal_meta")
         copy("bridge.delivery_receipts")
-        copy("bridge.delivery_error_reports")
+        copy("bridge.send_message_send_status_events")
+        copy("bridge.send_error_notices")
+        copy("bridge.max_handle_seconds")
         copy("bridge.resend_bridge_info")
         copy("bridge.periodic_sync")
 
