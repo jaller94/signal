@@ -31,6 +31,7 @@ RUN apk add --no-cache \
       bash \
       curl \
       jq \
+	  git \
       yq
 
 COPY requirements.txt /opt/mautrix-signal/requirements.txt
